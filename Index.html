@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Safety-Net">
+  
+  <title>Safety-Net Check-In</title>
+
+  <style>
+    :root {
+      --prc-blue: #254F71;
+      --prc-orange: #EE835E;
+      --bg-dark: #0d1b2a;
+      --bg-mid: #14283d;
+      --text-light: #e0e0e0;
+    }
+
+    @keyframes moveGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, var(--bg-dark), var(--prc-blue), #1a2a3a);
+      background-size: 300% 300%;
+      animation: moveGradient 18s ease infinite;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text-light);
+      overflow: hidden;
+    }
+
+    .container {
+      background: rgba(15, 30, 45, 0.75);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      border: 1px solid rgba(238, 131, 94, 0.25);
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.55);
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 24px;
+      color: var(--prc-orange);
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #9bb3c9;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      border: 1px solid #2d4a66;
+      background: var(--bg-dark);
+      color: white;
+      font-size: 18px;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: var(--prc-blue);
+      color: var(--prc-orange);
+      border: 1px solid var(--prc-orange);
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 50px;
+      background: rgba(20, 40, 60, 0.95);
+      padding: 15px 30px;
+      border-radius: 10px;
+      color: var(--prc-orange);
+      border: 1px solid var(--prc-orange);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    #toast.show { opacity: 1; }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Safety-Net Check-In</h1>
+    <form id="checkin-form">
+      <label for="guestName">Name</label>
+      <input type="text" id="guestName" placeholder="Enter guest name" required>
+
+      <label for="reason">Reason for Visit</label>
+      <input type="text" id="reason" placeholder="Enter reason" required>
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div id="toast">Check-in submitted!</div>
+
+  <!-- Firebase 8 (iPad-safe) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBmeTvk7BeWzGwLSgfw6Egr9k2QjG2lqVM",
+      authDomain: "safety-net-check-in.firebaseapp.com",
+      databaseURL: "https://safety-net-check-in-default-rtdb.firebaseio.com/",
+      projectId: "safety-net-check-in",
+      storageBucket: "safety-net-check-in.firebasestorage.app",
+      messagingSenderId: "1074532631627",
+      appId: "1:1074532631627:web:ce5ac68b9195b25c4ef9ce"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const checkinsRef = db.ref("checkins");
+
+    const toast = document.getElementById("toast");
+
+    document.getElementById("checkin-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      await checkinsRef.push({
+        time: Date.now(),
+        guestName: document.getElementById("guestName").value.trim(),
+        reason: document.getElementById("reason").value.trim(),
+        status: "waiting"
+      });
+
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2000);
+      e.target.reset();
+    });
+  </script>
+</body>
+</html>
